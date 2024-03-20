@@ -11,6 +11,10 @@ const fundSchema = new mongoose.Schema({
     type: Object,
     default: {},
   },
+  profit: {
+    type: Object,
+    default: {},
+  },
   // updated: { type: Date, required: true },
 });
 

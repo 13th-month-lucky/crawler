@@ -1,5 +1,9 @@
 import axios from "axios";
 import { getDateSDT } from "../utils/date.js";
+import { figletAsync, progressBar } from "../utils/visualization.js";
+import { connectDB, disconnectDB } from "../utils/database.js";
+import { randomDelay } from "../utils/delay.js";
+import { Fund } from "../models/Fund.js";
 
 const url =
   "https://www.shinhansec.com/siw/wealth-management/fund/59900102/data.do";
@@ -70,8 +74,38 @@ async function getFundProfitTable(fundCode) {
 }
 
 async function run() {
-  let fundProfit = await getFundProfitTable("2053305");
-  console.log(fundProfit);
+  const figletData = await figletAsync("Fund Profit");
+  console.log(figletData);
+  let fundCode;
+
+  try {
+    await connectDB();
+
+    // 1. DB에서 모든 코드를 가져온다.
+    const fundCodes = await Fund.getAllCodes();
+
+    // 2. 반복문 돌려서 업데이트 한다.
+    progressBar.start(fundCodes.length, 0);
+    for (fundCode of fundCodes) {
+      await randomDelay(2);
+
+      let fundProfit = await getFundProfitTable(fundCode);
+
+      await Fund.updateOne(
+        { code: fundCode },
+        { $set: { profit: fundProfit } }
+      ).then((data) => {
+        // DB 업데이트
+        progressBar.increment();
+      });
+    }
+  } catch (e) {
+    console.log(`====== Error in ${fundCode} =======`);
+    console.error(e);
+    console.log();
+  } finally {
+    await disconnectDB();
+  }
 }
 
 run();
