@@ -70,6 +70,8 @@ async function getFundDefaultInfo(fundCode) {
         ...fundInfo,
         위험등급: target["펀드위험등급"],
         등락: target["등락"],
+        특징: target["펀드특징"],
+        운용전략: target["운용전략"],
       };
     }
 
