@@ -76,7 +76,7 @@ async function run() {
     for (fundCode of fundCodes) {
       await randomDelay(2);
       // 기본 정보
-      let fundPortfolio = await getFundPortfolio("2053305");
+      let fundPortfolio = await getFundPortfolio(fundCode);
       await Fund.updateOne(
         { code: fundCode },
         { $set: { portfolio: fundPortfolio } }
