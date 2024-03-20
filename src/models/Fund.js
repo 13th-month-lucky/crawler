@@ -10,7 +10,20 @@ const fundSchema = new mongoose.Schema({
   // updated: { type: Date, required: true },
 });
 
-const Fund = mongoose.model("Fund", fundSchema);
+fundSchema.statics.getAllCodes = async function () {
+  try {
+    const codes = await this.find().then((funds) => {
+      return funds.map((fund) => {
+        return fund.code;
+      });
+    });
+    return codes;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const Fund = mongoose.model("Fund", fundSchema);
 
 export async function saveFundCodeListToDB(fundCodeList) {
   try {
