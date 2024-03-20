@@ -4,7 +4,7 @@ import path from "path";
 const dataPath = "./data";
 
 export const fileNames = {
-  fundList: "fund-list.json",
+  fundList: "fund-code-list.json",
 };
 
 export async function readJson(fileName) {
