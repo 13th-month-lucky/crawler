@@ -144,13 +144,13 @@ async function getFundDefaultInfo(fundCode) {
 async function run() {
   const figletData = await figletAsync("Fund Default Info");
   console.log(figletData);
+  let fundCode;
 
   try {
     await connectDB();
 
     // 1. DB에서 모든 코드를 가져온다.
     const fundCodes = await Fund.getAllCodes();
-    let fundCode;
 
     // 2. 반복문 돌려서 업데이트 한다.
     progressBar.start(fundCodes.length, 0);
