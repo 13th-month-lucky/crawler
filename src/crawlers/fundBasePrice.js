@@ -46,12 +46,12 @@ async function getFundBasePrice(fundCode) {
   if (bodyData) {
     let target = bodyData.data4["반복데이타0"];
 
-    for (let idx in target) {
+    for (let data of target) {
       let dailyData = {
-        기준일: target[idx][0],
-        기준가: target[idx][1],
-        설정액: target[idx][16],
-        전일대비: target[idx][3],
+        기준일: data[0],
+        기준가: data[1],
+        설정액: data[16],
+        전일대비: data[3],
       };
       fundBasePrice["기준가 전체"].push(dailyData);
     }
