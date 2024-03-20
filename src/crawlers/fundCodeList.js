@@ -1,7 +1,7 @@
 import axios from "axios";
 import { fileNames, saveJson } from "../utils/file.js";
 import { getDateSDT, getDateYMD } from "../utils/date.js";
-import { saveFundCodeListToDB } from "../models/fund.js";
+import { saveFundCodeListToDB } from "../models/Fund.js";
 import { figletAsync, progressBar } from "../utils/visualization.js";
 
 const url = "https://www.shinhansec.com/siw/common/nio/data.do";
@@ -126,7 +126,7 @@ async function getTotalPage() {
 }
 
 async function run() {
-  const figletData = await figletAsync("Fund Code List Crawler");
+  const figletData = await figletAsync("Fund Code List");
   console.log(figletData);
 
   const ymd = await getDateYMD();
