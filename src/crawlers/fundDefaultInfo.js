@@ -1,5 +1,9 @@
 import axios from "axios";
 import { getDateSDT } from "../utils/date.js";
+import { connectDB, disconnectDB } from "../utils/database.js";
+import { figletAsync, progressBar } from "../utils/visualization.js";
+import { Fund } from "../models/Fund.js";
+import { randomDelay } from "../utils/delay.js";
 
 const url =
   "https://www.shinhansec.com/siw/wealth-management/fund/59900101/data.do";
@@ -38,17 +42,18 @@ async function fetchFundDefaultInfoPage(fundCode) {
 async function getFundDefaultInfo(fundCode) {
   const response = await fetchFundDefaultInfoPage(fundCode);
   const bodyData = response.data.body;
-  let fundInfo = { 기본정보: {} };
+  let fundInfo = {};
   if (bodyData) {
     let target = bodyData.data2;
     if (target) {
-      fundInfo.기본정보 = {
+      fundInfo = {
         펀드코드: target["펀드코드"],
         펀드명: target["펀드명"],
         상품코드: target["신한펀드코드"],
         기준가: target["기준가"],
         규모: target["순자산"] + "억원",
         클래스명: target["펀드평가사클래스명"],
+        설정일: target["설정일"],
         운용사: target["운용사"],
         보수: target["총보수"],
         상품_유형: target["펀드유형"],
@@ -61,8 +66,8 @@ async function getFundDefaultInfo(fundCode) {
     target = bodyData.data4;
 
     if (target) {
-      fundInfo.기본정보 = {
-        ...fundInfo.기본정보,
+      fundInfo = {
+        ...fundInfo,
         위험등급: target["펀드위험등급"],
         등락: target["등락"],
       };
@@ -112,8 +117,8 @@ async function getFundDefaultInfo(fundCode) {
         판매채널 = "전화";
       }
 
-      fundInfo.기본정보 = {
-        ...fundInfo.기본정보,
+      fundInfo = {
+        ...fundInfo,
         판매수수료: target["수수료1"] == "" ? "없음" : target["수수료1"],
         환매수수료: target["수수료2"] == "" ? "없음" : target["수수료2"],
         모집방식: target["구분"],
@@ -135,9 +140,37 @@ async function getFundDefaultInfo(fundCode) {
 }
 
 async function run() {
-  // 기본 정보
-  const defaultInfo = getFundDefaultInfo("2053305");
-  console.log(await defaultInfo);
+  const figletData = await figletAsync("Fund Default Info");
+  console.log(figletData);
+
+  try {
+    await connectDB();
+
+    // 1. DB에서 모든 코드를 가져온다.
+    const fundCodes = await Fund.getAllCodes();
+    let fundCode;
+
+    // 2. 반복문 돌려서 업데이트 한다.
+    progressBar.start(fundCodes.length, 0);
+    for (fundCode of fundCodes) {
+      await randomDelay(2);
+      // 기본 정보
+      const defaultInfo = await getFundDefaultInfo(fundCode);
+      await Fund.updateOne(
+        { code: fundCode },
+        { $set: { data: defaultInfo } }
+      ).then((data) => {
+        // DB 업데이트
+        progressBar.increment();
+      });
+    }
+  } catch (e) {
+    console.log(`====== Error in ${fundCode} =======`);
+    console.error(e);
+    console.log();
+  } finally {
+    await disconnectDB();
+  }
 }
 
 run();
