@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
+import { get } from "mongoose";
 
 async function getEtfInfo(searchNumber) {
   const baseURL = "https://www.soletf.com/ko/fund/etf/" + `${searchNumber}`;
@@ -13,6 +14,9 @@ async function getEtfInfo(searchNumber) {
     const $ = cheerio.load(resp.data);
     const title = $(".fv-name").text();
     const description = $(".fv-des").text().trim();
+    const categories = $(".i-bdg-g .i-bdg")
+      .map((index, element) => $(element).text())
+      .get();
 
     const stockData = $(".dl-data .def")
       .map((index, element) => {
@@ -48,15 +52,17 @@ async function getEtfInfo(searchNumber) {
 
     stockData.unshift({ 종목이름: title });
     stockData.unshift({ 종목설명: description });
-
+    stockData.unshift({ 유형: categories });
     const formattedData = {};
     stockData.forEach((item) => {
       formattedData[Object.keys(item)[0]] = Object.values(item)[0];
     });
+    // console.log(formattedData);
     return formattedData;
   } catch (error) {
     console.log("error: " + error.message);
   }
 }
 
+// getEtfInfo(211028);
 export { getEtfInfo };

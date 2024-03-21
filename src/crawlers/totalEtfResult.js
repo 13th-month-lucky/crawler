@@ -5,7 +5,6 @@ import { saveOrUpdateEtfChart } from "../models/EtfChart.js";
 import { saveEtfChart } from "../openapi/saveEtfChart.js";
 import { getEtfInfo } from "./etfInfoCrawler.js";
 import { getEtfExtraInfo } from "./etfTabCrawler.js";
-import fs from "fs";
 import moment from "moment";
 
 async function delay(ms) {
