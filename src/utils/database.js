@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export function connectDB() {
+export async function connectDB() {
   mongoose
     .connect(process.env.MONGO_CONNECT, {
       retryWrites: true,
@@ -15,4 +15,11 @@ export function connectDB() {
     });
 }
 
-connectDB();
+export async function disconnectDB() {
+  mongoose
+    .disconnect()
+    .then(() => {
+      console.log("SUCCESS DISCONNECTION");
+    })
+    .catch((err) => console.log(err));
+}
