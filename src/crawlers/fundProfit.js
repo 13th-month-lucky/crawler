@@ -41,11 +41,11 @@ async function fetchFundProfitTablePage(fundCode) {
 async function getFundProfitTable(fundCode) {
   const response = await fetchFundProfitTablePage(fundCode);
   const bodyData = response.data.body;
-  let fundProfit = { 수익률: {} };
+  let fundProfit = {};
   if (bodyData) {
     let target = bodyData.data2;
     if (target) {
-      fundProfit.수익률.기준일 = target["기준일"];
+      fundProfit.기준일 = target["기준일"];
     }
 
     const range = [
@@ -68,7 +68,7 @@ async function getFundProfitTable(fundCode) {
         table[`${range[idx - 1]}`] = data;
       }
     }
-    fundProfit.수익률.표 = table;
+    fundProfit.표 = table;
   }
   return fundProfit;
 }

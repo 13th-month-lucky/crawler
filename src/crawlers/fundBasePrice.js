@@ -42,11 +42,11 @@ async function fetchBasePricePage(fundCode) {
   }
 }
 
-// 기준가 차트, 표 생성
-async function getFundBasePrice(fundCode) {
+// 기준가 차트, 표에 들어갈 데이터
+async function getFundBasePrices(fundCode) {
   const response = await fetchBasePricePage(fundCode);
   const bodyData = response.data.body;
-  let fundBasePrice = { "기준가 전체": [] };
+  let fundBasePrices = [];
   if (bodyData) {
     let target = bodyData.data4["반복데이타0"];
 
@@ -57,10 +57,10 @@ async function getFundBasePrice(fundCode) {
         설정액: data[16],
         전일대비: data[3],
       };
-      fundBasePrice["기준가 전체"].push(dailyData);
+      fundBasePrices.push(dailyData);
     }
   }
-  return fundBasePrice;
+  return fundBasePrices;
 }
 
 async function run() {
@@ -79,10 +79,10 @@ async function run() {
     for (fundCode of fundCodes) {
       await randomDelay(2);
       // 기본 정보
-      let fundBasePrice = await getFundBasePrice(fundCode);
+      let fundBasePrices = await getFundBasePrices(fundCode);
       await Fund.updateOne(
         { code: fundCode },
-        { $set: { basePrice: fundBasePrice } }
+        { $set: { basePrice: fundBasePrices } }
       ).then((data) => {
         // DB 업데이트
         progressBar.increment();
