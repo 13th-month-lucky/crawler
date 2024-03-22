@@ -7,7 +7,7 @@ const AppKey = process.env.KOREA_INVEST_APPKEY;
 const SecretKey = process.env.KOREA_INVEST_SECRETKEY;
 const AccessToken = await getAcessToken();
 
-async function getEtfChart(stockCode, inputDate1, inputDate2) {
+async function getNewEtfChart(stockCode, inputDate1, inputDate2) {
   const code = stockCode.toString();
   const url = "https://openapivts.koreainvestment.com:29443";
   const PATH =
@@ -21,7 +21,7 @@ async function getEtfChart(stockCode, inputDate1, inputDate2) {
         fid_input_iscd: code,
         fid_input_date_1: inputDate1,
         fid_input_date_2: inputDate2,
-        fid_period_div_code: "D",
+        fid_period_div_code: "W",
         fid_org_adj_prc: "0",
       },
       headers: {
@@ -36,15 +36,28 @@ async function getEtfChart(stockCode, inputDate1, inputDate2) {
       },
     });
     // console.log(resp.data);
-    const chartResult = {
-      code: stockCode,
-      chart: resp.data,
-    };
 
+    const chartTemp = resp.data.output2
+      .filter((item) => Object.keys(item).length !== 0)
+      .map((item) => {
+        return {
+          주식영업일자: item.stck_bsop_date,
+          주식종가: item.stck_clpr,
+          누적거래량: item.acml_vol,
+        };
+      });
+
+    const chartResult = {
+      HTS한글종목명: resp.data.output1.hts_kor_isnm,
+      시가총액: resp.data.output1.hts_avls,
+      전일거래량: resp.data.output1.prdy_vol,
+      chart: chartTemp,
+    };
+    console.log(chartResult);
     return chartResult;
   } catch (error) {
     throw error;
   }
 }
-// getEtfChart(436140, 1, 1);
-export { getEtfChart };
+
+export { getNewEtfChart };
