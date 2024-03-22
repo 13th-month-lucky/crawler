@@ -23,10 +23,11 @@ async function getAcessToken() {
         },
       }
     );
+    console.log(resp.data.access_token);
     return resp.data.access_token;
   } catch (error) {
     console.log("error2: " + error.message);
   }
 }
-
+getAcessToken();
 export { getAcessToken };

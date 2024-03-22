@@ -1,10 +1,9 @@
 import { getETFNumbers } from "../crawlers/stockNumberCrawler.js";
-import { getEtfChart } from "../openapi/getEtfChart.js";
-import { saveOrUpdateEtfInfo } from "../models/EtfInfo.js";
-import { saveOrUpdateEtfChart } from "../models/EtfChart.js";
 import { getEtfInfo } from "./etfInfoCrawler.js";
 import { getEtfExtraInfo } from "./etfTabCrawler.js";
+import { getNewEtfChart } from "../openapi/getNewEtfChart.js";
 import moment from "moment";
+import { saveOrUpdateEtfOverView } from "../models/EtfOverView.js";
 
 async function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -17,31 +16,33 @@ async function getTotalEtfResult() {
     .format("YYYYMMDD")
     .toString();
 
+  console.log(currentDate);
+  console.log(oneYearBefore);
   const codes = await getETFNumbers();
   for (let i = 0; i < codes.length; i++) {
     const code = codes[i];
     const basicInfo = await getEtfInfo(code.searchNumber);
     const dangerDegree = await getEtfExtraInfo(code.searchNumber, 2);
     const ratio = await getEtfExtraInfo(code.searchNumber, 3);
+    const resultChart = await getNewEtfChart(
+      code.stockNumber,
+      oneYearBefore,
+      currentDate
+    );
 
-    const resultInfo = {
+    const overViewResult = {
       code: code.stockNumber,
       data: {
         basicInfo: basicInfo,
         dangerDegree: dangerDegree,
         ratio: ratio,
       },
+      chart: resultChart,
     };
 
-    console.log("resultStockNum:" + code.stockNumber);
-    const resultChart = await getEtfChart(
-      code.stockNumber,
-      oneYearBefore,
-      currentDate
-    );
+    // fs.writeFileSync(`${code.stockNumber}.json`, JSON.stringify(overViewResult));
 
-    saveOrUpdateEtfInfo(resultInfo);
-    saveOrUpdateEtfChart(resultChart);
+    saveOrUpdateEtfOverView(overViewResult);
 
     // 10개의 요청마다 1초의 지연을 추가
     if ((i + 1) % 10 === 0) {
