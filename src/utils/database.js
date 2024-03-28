@@ -23,3 +23,5 @@ export async function disconnectDB() {
     })
     .catch((err) => console.log(err));
 }
+
+connectDB();
